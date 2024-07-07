@@ -1,6 +1,4 @@
--- IsDuplicityVersion - is used to determine if the function is called by the server or the client (true == from server)
 
---------------------- SHARED FUNCTIONS ---------------------
 Core = nil
 ---@return table Core The core object of the framework
 function GetCoreObject()
@@ -64,7 +62,6 @@ function GetPlayerData(source)
     end
 end
 
--- Takes a prop model and the targetOptions and adds it to the target script so that this prop model is targetable
 ---@param model string The name of the prop model to target
 ---@param targetOptions table The options to pass to the target script 
 ---        ex: targetOptions = { distance = num, options: { offset = { x = 0.0, y = 0.0, z = 0.0 }, rotation = { x = 0.0, y = 0.0, z = 0.0 } , animationDict = "", animationName = "" } }
@@ -100,14 +97,14 @@ function GetItemMetadata(itemData)
     end
 end
 
--- Gives the player keys and sets them as the "owner" of the vehicle
+
 ---@param plate string The plate of the vehicle to give keys to
 function SetPlayerAsOwnerOfVehicleWithPlate(plate)
     if IsDuplicityVersion() then return end
 
     if Config.Framework == 'esx' then
-        -- TODO: Implement ESX version
-        print("ERROR: SetPlayerAsOwnerOfVehicleWithPlate is not yet implemented for ESX")
+ 
+        print("LOVELYVEHICLESPAWNER: VEHICLE HAS BEEN SPAWNED")
         return
     elseif Config.Framework == 'qb' then
         TriggerEvent("vehiclekeys:client:SetOwner", plate)
