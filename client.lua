@@ -1,5 +1,5 @@
 local animationDict = "pickup_object"
-local animation = "pickup_low" --remove line 1 and 2 if you dont want any animation
+local animation = "pickup_low" --remove this line if you dont want any animation
 
 local function LoadModel(model)
     while not HasModelLoaded(GetHashKey(model)) do
