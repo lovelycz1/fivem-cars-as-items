@@ -8,7 +8,7 @@ Config.Target = 'ox'        -- 'qb', 'ox'
 Config.Inventory = 'ox'     -- 'ox'
 
 
-Config.Bikes = { 
+Config.Cars = { 
 	"adder", 
 -- add more like this:	"faggio2", 
 
