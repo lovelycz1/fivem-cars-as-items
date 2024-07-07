@@ -1,5 +1,5 @@
 
-for _, v in pairs(Config.Bikes) do
+for _, v in pairs(Config.Cars) do
     CreateUseableItem(v, function(source, item)
         TriggerClientEvent('lovely-cars-as-items:client:place', source, item.name, item)
     end)
