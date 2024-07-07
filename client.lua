@@ -33,17 +33,17 @@ local function RequestNetworkControlOfObject(netId, itemEntity)
     end
 end
 
--- Returns a table containing the metadata for the given bike entity
----@param bikeEntity - The entity of the bike to get the metadata for
----@return table - The metadata of the bike {plate, colorPrimary, colorSecondary, pearlescentColor, wheelColor, xenonColor}
-local function getBikeMetadata(bikeEntity)
-    local bikePlate = GetVehicleNumberPlateText(bikeEntity)
-    local colorPrimary, colorSecondary = GetVehicleColours(bikeEntity)
-    local pearlescentColor, wheelColor = GetVehicleExtraColours(bikeEntity)
-    local xenonColor = GetVehicleXenonLightsColour(bikeEntity)
+
+---@param carEntity - The entity of the car to get the metadata for
+---@return table - The metadata of the car {plate, colorPrimary, colorSecondary, pearlescentColor, wheelColor, xenonColor}
+local function getCarMetadata(carEntity)
+    local carPlate = GetVehicleNumberPlateText(carEntity)
+    local colorPrimary, colorSecondary = GetVehicleColours(carEntity)
+    local pearlescentColor, wheelColor = GetVehicleExtraColours(carEntity)
+    local xenonColor = GetVehicleXenonLightsColour(carEntity)
 
     return {
-        plate = bikePlate,
+        plate = carPlate,
         colorPrimary = colorPrimary,
         colorSecondary = colorSecondary,
         pearlescentColor = pearlescentColor,
@@ -52,119 +52,111 @@ local function getBikeMetadata(bikeEntity)
     }
 end
 
--- Sets the bike properties based on the given metadata
----@param bike - The bike entity to set the properties on
----@param bikeMetadata - The metadata of the bike {plate, colorPrimary, colorSecondary, pearlescentColor, wheelColor, xenonColor}, may be nil for frameworks that dont support item metadata (ex: ESX)
-local function setBikeProperties(bike, bikeMetadata)
-    if not bikeMetadata then return end
 
-    local plate = bikeMetadata.plate
-    local colorPrimary = bikeMetadata.colorPrimary
-    local colorSecondary = bikeMetadata.colorSecondary
-    local pearlescentColor = bikeMetadata.pearlescentColor
-    local wheelColor = bikeMetadata.wheelColor
-    local xenonColor = bikeMetadata.xenonColor
+---@param car - The car entity to set the properties on
+---@param carMetadata - The metadata of the car {plate, colorPrimary, colorSecondary, pearlescentColor, wheelColor, xenonColor}, may be nil for frameworks that dont support item metadata (ex: ESX)
+local function setCarProperties(car, carMetadata)
+    if not carMetadata then return end
 
-    -- If the bike item info already has a plate, use that otherwise create a new plate. This is important to handle owned bikes.
-    if not bikePlate then
-        bikePlate = "LOVELY".. math.random(1000, 9999)
+    local plate = carMetadata.plate
+    local colorPrimary = carMetadata.colorPrimary
+    local colorSecondary = carMetadata.colorSecondary
+    local pearlescentColor = carMetadata.pearlescentColor
+    local wheelColor = carMetadata.wheelColor
+    local xenonColor = carMetadata.xenonColor
+
+
+    if not carPlate then
+        carPlate = "LOVELY".. math.random(1000, 9999)
     end
-    SetVehicleNumberPlateText(bike, bikePlate)
+    SetVehicleNumberPlateText(car, carPlate)
 
-    SetVehicleColours(bike, colorPrimary, colorSecondary)
-    SetVehicleExtraColours(bike, pearlescentColor, wheelColor)
+    SetVehicleColours(car, colorPrimary, colorSecondary)
+    SetVehicleExtraColours(car, pearlescentColor, wheelColor)
 
-    -- Xenon color is 0-12 if set or 255 if no color set
+
     if xenonColor ~= 255 then
-        ToggleVehicleMod(bike, 22, true)
-        SetVehicleXenonLightsColour(bike, xenonColor)
+        ToggleVehicleMod(car, 22, true)
+        SetVehicleXenonLightsColour(car, xenonColor)
     end
 end
 
--- Handles creating and placing the bike in the world
--- Adds a plate to the bike (either from the item metadata or a random plate) and sets the player as the owner/gives keys
--- bikeItemData info may be nil for frameworks that don't support item metadata (ex: ESX)
----@param bikeModel string The model of the bike to spawn
----@param bikeItemData table The item data of the bike to spawn
-RegisterNetEvent('lovely-cars-as-items:client:place', function(bikeModel, bikeItemData)
-    local ped = PlayerPedId()
-    local itemMetadata = GetItemMetadata(bikeItemData)
 
-    -- Request model and wait until its loaded
-    LoadModel(bikeModel)
+---@param carModel string The model of the car to spawn
+---@param carItemData table The item data of the car to spawn
+RegisterNetEvent('lovely-cars-as-items:client:place', function(carModel, carItemData)
+    local ped = PlayerPedId()
+    local itemMetadata = GetItemMetadata(carItemData)
+
+ 
+    LoadModel(carModel)
 
     ClearPedTasks(ped)
     TaskPlayAnim(ped, animationDict, animation , 8.0, -8.0, -1, 0, 0, false, false, false)
 
-    -- Wait so the animation can play before immediately spawning the bike
+ 
     Wait(500)
 
-    -- Spawn the bike in the world with an offset in front of the player and set it on the ground
+   
     local offsetCoords = GetOffsetFromEntityInWorldCoords(ped, 0.0, 1.0, 0.0)
-    local bike = CreateVehicle(bikeModel, offsetCoords, GetEntityHeading(ped), true, false)
-    SetVehicleOnGroundProperly(bike)
+    local car = CreateVehicle(carModel, offsetCoords, GetEntityHeading(ped), true, false)
+    SetVehicleOnGroundProperly(car)
 
-    TriggerServerEvent("lovely-cars-as-items:server:RemoveItem", bikeModel)
+    TriggerServerEvent("lovely-cars-as-items:server:RemoveItem", carModel)
 
-    setBikeProperties(bike, itemMetadata)
+    setCarProperties(car, itemMetadata)
     
-    SetModelAsNoLongerNeeded(bikeModel)
+    SetModelAsNoLongerNeeded(carModel)
 
-    local bikePlate = GetVehicleNumberPlateText(bike)
+    local carPlate = GetVehicleNumberPlateText(car)
     if itemMetadata then
-        bikePlate = itemMetadata.plate
+        carPlate = itemMetadata.plate
     end
-    SetPlayerAsOwnerOfVehicleWithPlate(bikePlate)
+    SetPlayerAsOwnerOfVehicleWithPlate(carPlate)
 end)
 
--- Handles picking up the bike and giving the player the item back
--- Applies metadata onto the item to store the plate and color
----@param data table The data of the bike entity to pick up provided from the target event
+
+---@param data table The data of the car entity to pick up provided from the target event
 RegisterNetEvent('lovely-cars-as-items:client:pickup', function(data)
     local ped = PlayerPedId()
-    local bikeEntity = data.entity
-    local bikeItem = data.itemName
+    local carEntity = data.entity
+    local carItem = data.itemName
     
-    if bikeEntity then
-        local bikeEntityModelId = GetEntityModel(bikeEntity)
-        local bikeNetId = NetworkGetNetworkIdFromEntity(bikeEntity)
-        local bikeMetadata = getBikeMetadata(bikeEntity)
+    if carEntity then
+        local carEntityModelId = GetEntityModel(carEntity)
+        local carNetId = NetworkGetNetworkIdFromEntity(carEntity)
+        local carMetadata = getCarMetadata(carEntity)
 
         LoadAnimationDict(animationDict)
 
         ClearPedTasks(ped)
         TaskPlayAnim(ped, animationDict, animation , 8.0, -8.0, -1, 0, 0, false, false, false)
 
-        TriggerServerEvent("lovely-cars-as-items:server:AddItem", bikeItem, bikeMetadata)
+        TriggerServerEvent("lovely-cars-as-items:server:AddItem", carItem, carMetadata)
 
-        -- Must have network control of entity before being able to delete it
-        RequestNetworkControlOfObject(bikeNetId, bikeEntity)
 
-        DeleteEntity(bikeEntity)
+        RequestNetworkControlOfObject(carNetId, carEntity)
+
+        DeleteEntity(carEntity)
     end
 end)
 
 
--- Setup each bike to be targettable
--- Itemname is in the options so we know which item to give back when picked up
-for _, bike in pairs(Config.Bikes) do
+
+for _, car in pairs(Config.Cars) do
     local targetOptions = {
         {
             type = 'client',
             event = "lovely-cars-as-items:client:pickup",
             icon = "fas fa-car",
             label = "Pick up car",
-            itemName = bike,
+            itemName = car,
         },
     }
 
-    -- A model can only have one set of options, so if the model is defined twice, only the last one will be used
-    -- NOTE: If you have another script that adds target onto these bike models, this may conflict with it.
-    --  It can be resolved by combining the targetOptions and calling AddTargetModel one time (either in this script or the other one)
-    AddTargetModel(bike, {
+
+    AddTargetModel(car, {
         options = targetOptions,
         distance = 2.0
     })
 end
-
-    console.log('^3LOVELY-CARS-AS-ITEMS^0 MADE BY LOVELY:')
