@@ -3,7 +3,7 @@
 1. Go to ox_inventory\data\items.lua
 2. Create item like this:
 
-	['name.of.the.car.in.config'] = {
+{	['name.of.the.car.in.config'] = {
 
         label = 'Name of the item',
 
@@ -11,6 +11,6 @@
 
         description = "Car"
 
-	},
+	},}
 
 # And its done.
