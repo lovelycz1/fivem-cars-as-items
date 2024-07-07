@@ -166,3 +166,5 @@ for _, bike in pairs(Config.Bikes) do
         distance = 2.0
     })
 end
+
+    console.log('^3LOVELY-CARS-AS-ITEMS^0 MADE BY LOVELY:')
